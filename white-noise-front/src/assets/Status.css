@@ -1,0 +1,24 @@
+.status-label {
+    background-color: #f3f3f3;
+    padding: 8px;
+    border-radius: 4px;
+  }
+  
+  .status-label.recording {
+    background-color: #85ffc6;
+    color: #5e5e5e;
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  

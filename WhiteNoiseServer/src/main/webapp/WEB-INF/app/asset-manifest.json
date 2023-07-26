@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/WhiteNoiseServer/static/css/main.2a9a55cc.css",
+    "main.js": "/WhiteNoiseServer/static/js/main.a5a8450c.js",
+    "index.html": "/WhiteNoiseServer/index.html",
+    "main.2a9a55cc.css.map": "/WhiteNoiseServer/static/css/main.2a9a55cc.css.map",
+    "main.a5a8450c.js.map": "/WhiteNoiseServer/static/js/main.a5a8450c.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2a9a55cc.css",
+    "static/js/main.a5a8450c.js"
+  ]
+}

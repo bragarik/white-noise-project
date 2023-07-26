@@ -1,0 +1,29 @@
+@keyframes babyAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+.animation {
+    margin-top: 0 !important;
+    padding: 0;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(-45deg, #7AD7F0, #FFFFFF, #7AD7F0);
+    background-size: 200% 200%;
+    animation: babyAnimation 10s ease infinite;
+}
