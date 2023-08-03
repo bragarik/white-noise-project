@@ -53,17 +53,6 @@
 			<version>20210307</version>
 		</dependency>
 
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.2.6</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-access</artifactId>
-			<version>1.2.6</version>
-		</dependency>
-
 	</dependencies>
 	<build>
 		<finalName>WhiteNoiseServer</finalName>

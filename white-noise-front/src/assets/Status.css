@@ -1,24 +1,24 @@
 .status-label {
-    background-color: #f3f3f3;
-    padding: 8px;
-    border-radius: 4px;
-  }
-  
-  .status-label.recording {
-    background-color: #85ffc6;
-    color: #5e5e5e;
-    animation: blink 1s infinite;
-  }
-  
-  @keyframes blink {
-    0% {
+  background-color: #313131; /* Alterando a cor de fundo para um tom mais escuro */
+  padding: 8px;
+  border-radius: 4px;
+  color: #ffffff; /* Definindo a cor do texto como branco */
+}
+
+.status-label.recording {
+  background-color: #007f5f; /* Alterando a cor de fundo para um tom verde mais escuro */
+  color: #ffffff; /* Definindo a cor do texto como branco */
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
       opacity: 1;
-    }
-    50% {
+  }
+  50% {
       opacity: 0;
-    }
-    100% {
-      opacity: 1;
-    }
   }
-  
+  100% {
+      opacity: 1;
+  }
+}

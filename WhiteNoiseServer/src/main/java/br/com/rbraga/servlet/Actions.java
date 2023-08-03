@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import br.com.rbraga.service.AudioPlayerClip;
 
@@ -18,19 +16,25 @@ import br.com.rbraga.service.AudioPlayerClip;
 public class Actions extends HttpServlet {
 
 	private static final long serialVersionUID = -5927508004561607498L;
-	private final Logger logger = LoggerFactory.getLogger(Actions.class);
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
+		boolean isDevelopment = AudioPlayerClip.isDevelopmentEnvironment()
+				&& isOriginAllowed(request.getHeader("Origin"));
+
 		String pathInfo = request.getPathInfo();
+
+		if (isDevelopment)
+			System.out.println("- Init doPost -");
 
 		// Verifica se existe um caminho de contexto
 		if (pathInfo != null && pathInfo.length() > 1) {
 			String acao = pathInfo.substring(1); // Remove a barra inicial para obter a variável
 
-			logger.info(pathInfo);
+			if (isDevelopment)
+				System.out.println(acao);
 
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
@@ -41,12 +45,29 @@ public class Actions extends HttpServlet {
 				AudioPlayerClip.turnDownVolume();
 			} else if ("volume".equalsIgnoreCase(acao)) {
 				String volume = request.getParameter("volume");
-				if (volume != null)
+				if (volume != null) {
 					AudioPlayerClip.setVolume((Double.parseDouble(volume)));
+					if (isDevelopment)
+						System.out.println(volume);
+				}
 			} else if ("play".equalsIgnoreCase(acao)) {
 				AudioPlayerClip.play();
 			} else if ("stop".equalsIgnoreCase(acao)) {
 				AudioPlayerClip.pause();
+			} else if ("timer".equalsIgnoreCase(acao)) {
+				boolean on = request.getParameter("on").equals("true");
+				String timer = request.getParameter("timer");
+				if (on)
+					AudioPlayerClip.setTimer(Integer.parseInt(timer));
+				else
+					AudioPlayerClip.stopTimer();
+				if (isDevelopment)
+					System.out.println(on + " " + timer);
+			} else if ("fadeOut".equalsIgnoreCase(acao)) {
+				String fadeOut = request.getParameter("fadeOut");
+				AudioPlayerClip.setFadeOut(fadeOut.equals("true"));
+				if (isDevelopment)
+					System.out.println(fadeOut);
 			} else if ("status".equalsIgnoreCase(acao)) {
 				// Não precissa fazer nada
 			} else {
@@ -62,7 +83,14 @@ public class Actions extends HttpServlet {
 				json.put("statusMessage", "Parado");
 				json.put("status", false);
 			}
+
+			JSONObject timerJson = new JSONObject();
+			timerJson.put("on", AudioPlayerClip.isTimerRunning());
+			timerJson.put("remainingSeconds", AudioPlayerClip.getTimerRemainingSeconds());
+
+			json.put("timer", timerJson);
 			json.put("volume", AudioPlayerClip.getGain());
+			json.put("fadeOut", AudioPlayerClip.isFadeOut());
 			response.getWriter().write(json.toString());
 
 		} else {
@@ -70,14 +98,14 @@ public class Actions extends HttpServlet {
 			response.getWriter().println("Nenhum caminho de contexto foi fornecido.");
 		}
 
-		boolean isDevelopment = AudioPlayerClip.isDevelopmentEnvironment()
-				&& isOriginAllowed(request.getHeader("Origin"));
-
 		if (isDevelopment) {
 			response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
 			response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
 			response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 		}
+
+		if (isDevelopment)
+			System.out.println("- End doPost -");
 	}
 
 	@Override

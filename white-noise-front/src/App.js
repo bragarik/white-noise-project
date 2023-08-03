@@ -1,5 +1,4 @@
 import { Box, Card, CardMedia, Grid, Typography } from "@mui/material";
-
 import Titulo from "./components/Titulo";
 import Player from "./components/Player";
 
@@ -22,9 +21,15 @@ function App() {
     >
       <Titulo titulo="White Noise do Ian ❤️" subtitulo="Tenha bons sonhos 💭" />
       <Player apiUrl={API_URL} playing={playing} setPlaying={setPlaying} />
-      <Grid item xs={10}>
-        <Box maxWidth="80%">
-          <Card style={{ backgroundColor: "transparent", boxShadow: "none" }}>
+      <Grid item xs={6}>
+        <Box textAlign="center">
+          <Card
+            style={{
+              backgroundColor: "transparent",
+              boxShadow: "none",
+              backgroundImage: "none",
+            }}
+          >
             <CardMedia
               component="img"
               height="auto"
@@ -37,10 +42,12 @@ function App() {
           </Card>
         </Box>
       </Grid>
-      <Grid item xs={2}>
-        <Typography variant="caption" color="textSecondary" align="center">
-          Versão 1.0
-        </Typography>
+      <Grid item xs={6}>
+        <Box textAlign="center">
+          <Typography variant="caption" color="textSecondary" align="center">
+            Versão 1.5
+          </Typography>
+        </Box>
       </Grid>
     </Grid>
   );

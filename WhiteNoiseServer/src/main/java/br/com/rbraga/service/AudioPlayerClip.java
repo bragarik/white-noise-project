@@ -19,6 +19,9 @@ public class AudioPlayerClip {
 	private static long microsecondPosition = 0;
 	private static double gain = 0.5d;
 	private final static long MICROSECOND_FADE = 200000; // 100000 = 0,1s
+	private final static Runnable taskStop = () -> stop(), taskStoping = () -> stoping();
+	private static Timer timer = new Timer(taskStop, taskStoping);
+	private static boolean fadeOut = true;
 
 	public static void Init() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 		String songName;
@@ -42,7 +45,7 @@ public class AudioPlayerClip {
 	}
 
 	public static void play() {
-		AudioPlayerClip.setGain(gain);
+		AudioPlayerClip.setGain(gain < 0d ? 0.01d : gain);
 
 		players[currentPlayerId].setMicrosecondPosition(microsecondPosition);
 		if (!players[currentPlayerId].isRunning())
@@ -75,8 +78,13 @@ public class AudioPlayerClip {
 		players[currentPlayerId].stop();
 	}
 
+	public static void stoping() {
+		if (fadeOut && (timer.isRunning() && ((double) timer.getRemainingSeconds() / 100) <= getGain()))
+			setVolume((double) timer.getRemainingSeconds() / 100);
+	}
+
 	public static void turnUpVolume() {
-		gain = gain >= 1d ? 1d : gain + 0.05d;
+		gain = gain >= 1d ? 1d : gain + 0.01d;
 		AudioPlayerClip.setGain(gain);
 	}
 
@@ -86,7 +94,7 @@ public class AudioPlayerClip {
 	}
 
 	public static void turnDownVolume() {
-		gain = gain <= 0d ? 0d : gain - 0.05d;
+		gain = gain <= 0d ? 0d : gain - 0.01d;
 		AudioPlayerClip.setGain(gain);
 	}
 
@@ -127,9 +135,33 @@ public class AudioPlayerClip {
 		return players[currentPlayerId].isRunning();
 	}
 
+	public static void setTimer(int seconds) {
+		timer.adjustTime(seconds);
+	}
+
+	public static int getTimerRemainingSeconds() {
+		return timer.getRemainingSeconds();
+	}
+
+	public static boolean isTimerRunning() {
+		return timer.isRunning();
+	}
+
+	public static void stopTimer() {
+		timer.stop();
+	}
+
 	public static boolean isDevelopmentEnvironment() {
 		String environment = System.getenv("ENVIRONMENT");
 		return "development".equalsIgnoreCase(environment);
+	}
+
+	public static void setFadeOut(boolean fadeOut) {
+		AudioPlayerClip.fadeOut = fadeOut;
+	}
+
+	public static boolean isFadeOut() {
+		return fadeOut && isTimerRunning();
 	}
 
 }

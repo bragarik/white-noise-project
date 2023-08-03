@@ -18,7 +18,7 @@ build_animation() {
 build_animation
 
 # Comando para construir o projeto e mover/copiar para a pasta desejada
-react-scripts build 
+react-scripts --openssl-legacy-provider build 
 
 rm -r "$1"
 mkdir "$1"

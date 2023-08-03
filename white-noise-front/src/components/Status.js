@@ -3,26 +3,29 @@ import axios from "axios";
 import "../assets/Status.css";
 
 const StatusLabel = ({ apiUrl, onStatusChange, playing, statusMessage }) => {
-  const API_URL = apiUrl;
 
+  const fetchStatus = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/status`);
+      const data = response.data;
+      onStatusChange(data.status, data.statusMessage, parseInt(data.volume*100), data.timer, data.fadeOut);
+      console.log()
+    } catch (error) {
+      console.error('Ocorreu um erro ao buscar o status:', error);
+    }
+  };
+
+  // Iniciar o intervalo quando o componente é montado
   useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/status`);
-        const data = response.data;
-        onStatusChange(data.status, data.statusMessage, parseInt(data.volume*100));
-      } catch (error) {
-        onStatusChange(null, "Erro!", null);
-        console.error("Ocorreu um erro ao buscar o status:", error);
-      }
-    };
-    
     fetchStatus();
-    const intervalId = setInterval(fetchStatus, 8000); // Consulta o status a cada 8 segundos
-
-    // Limpa o intervalo quando o componente é desmontado
+    const intervalId = setInterval(fetchStatus, 6000);
+    
+    // Limpar o intervalo quando o componente é desmontado
     return () => clearInterval(intervalId);
-  }, [API_URL, onStatusChange]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // O array de dependências vazio garante que o useEffect seja executado somente após a montagem inicial
+
 
   return (
     <div className={`status-label ${playing ? "recording" : ""}`}>

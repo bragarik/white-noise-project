@@ -3,7 +3,23 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const theme = createTheme();
+const theme = createTheme({
+  palette: {
+    mode: 'dark', // Defina o tipo de paleta como "dark" para o tema escuro
+  },
+  components: {
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: "white"
+        }
+      }
+    }
+  }
+});
+
+const volume = localStorage.getItem("volume");
+  if (volume == null) localStorage.setItem("volume", 50);
 
 createRoot(document.getElementById('root'))
   .render(<React.StrictMode>
