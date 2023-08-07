@@ -45,7 +45,7 @@ function App() {
       <Grid item xs={6}>
         <Box textAlign="center">
           <Typography variant="caption" color="textSecondary" align="center">
-            Versão 1.5
+            Versão 1.51
           </Typography>
         </Box>
       </Grid>

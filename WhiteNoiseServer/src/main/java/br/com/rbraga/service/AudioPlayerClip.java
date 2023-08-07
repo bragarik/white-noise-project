@@ -37,7 +37,6 @@ public class AudioPlayerClip {
 			AudioInputStream sound = AudioSystem.getAudioInputStream(new File(pathTo));
 			players[i] = AudioSystem.getClip();
 			players[i].open(sound);
-			players[i].addLineListener(new AudioPlayerClipListener());
 
 			controls[i] = (FloatControl) players[i].getControl(FloatControl.Type.MASTER_GAIN);
 		}

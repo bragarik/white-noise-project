@@ -51,18 +51,12 @@ const Temporizador = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [running, timeInSeconds]);
 
-  const handleStartTimer = () => {
-    setRunning(true);
-  };
-
-  const handleStopTimer = () => {
-    setRunning(false);
+  const handleStopTime = () => {
+    handleSetTime(0);
   };
 
   const handleSetTime = (time, renew) => {
-    console.log(time)
     if (!running) {
-      handleStartTimer();
       setTimeInSeconds(time);
       setTimeAjusted(time);
     } else {
@@ -70,9 +64,11 @@ const Temporizador = ({
       setTimeAjusted(time + (renew ? 0 : timeInSeconds));
     }
 
+    setRunning(true);
+
     axios
-        .post(`${apiUrl}/timer?on=true&timer=${time}`)
-        .catch((error) => console.log(error));
+      .post(`${apiUrl}/timer?on=${time > 0}&timer=${time}`)
+      .catch((error) => console.log(error));
   };
 
   return (
@@ -80,7 +76,12 @@ const Temporizador = ({
       <Grid container direction="row" spacing={2}>
         <Grid item xs={6} md={6}>
           <Box textAlign="right">
-            <Typography variant="h4" component="div" gutterBottom className="title">
+            <Typography
+              variant="h4"
+              component="div"
+              gutterBottom
+              className="title"
+            >
               {formatTime(timeInSeconds)}
             </Typography>
           </Box>
@@ -88,7 +89,7 @@ const Temporizador = ({
         <Grid item xs={6} md={6}>
           <Box textAlign="left">
             <FormControlLabel
-                labelPlacement="top"
+              labelPlacement="top"
               control={
                 <Switch
                   disabled={playing && !running}
@@ -102,21 +103,24 @@ const Temporizador = ({
         </Grid>
         <Grid item xs={12} md={6}>
           <Box textAlign="center">
-          <FormControlLabel color="white"
-                labelPlacement="top"
-              control={ <Switch
-              disabled={!playing}
-              checked={running}
-              onChange={() =>
-                running
-                  ? handleStopTimer()
-                  : timeInSeconds <= 0
-                  ? handleSetTime(3600)
-                  : handleStartTimer()
+            <FormControlLabel
+              color="white"
+              labelPlacement="top"
+              control={
+                <Switch
+                  disabled={!playing}
+                  checked={running}
+                  onChange={() =>
+                    running
+                      ? handleStopTime()
+                      : timeInSeconds <= 0
+                      ? handleSetTime(3600)
+                      : handleSetTime(timeInSeconds)
+                  }
+                />
               }
-            />}
-            label={running ? "Timer on" : "Timer off"}
-          />
+              label={running ? "Timer on" : "Timer off"}
+            />
             <ButtonGroup variant="contained" size="large" disabled={!playing}>
               <Button onClick={() => handleSetTime(3600)}>
                 {running && "+"} 1h

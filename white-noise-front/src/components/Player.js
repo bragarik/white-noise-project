@@ -31,13 +31,6 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
   const [timerRunning, setTimerRunning] = useState(false);
   const [fadeOutAjusted, setFadeOutAjusted] = useState(false);
 
-  // Função para alterar o volume
-  const handleVolumeChange = (newValue) => {
-    setVolume(newValue);
-    volumeChanged.current = true;
-    localStorage.setItem("volume", newValue);
-  };
-
   useEffect(() => {
     setVolume(parseInt(localStorage.getItem("volume")));
   }, []);
@@ -87,35 +80,35 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
 
   // Função para aumentar o volume
   const handleVolumeUp = () => {
-    const newVolume = Math.min(volume + 1, 100); // Aumenta o volume em 5 (ou o máximo possível)
-    setLastVolume(newVolume); // Atualiza o último volume com o novo volume
-    setVolume(newVolume); // Atualiza o estado do volume
-    volumeChanged.current = true;
-    localStorage.setItem("volume", newVolume);
+    const newVolume = Math.min(volume + 1, 100);
+    handleVolumeChange(newVolume);
+    setVolumeComponent(newVolume);
   };
 
   // Função para diminuir o volume
   const handleVolumeDown = () => {
-    const newVolume = Math.max(volume - 1, 0); // Diminui o volume em 5 (ou o mínimo possível)
-    setLastVolume(newVolume); // Atualiza o último volume com o novo volume
-    setVolume(newVolume); // Atualiza o estado do volume
-    volumeChanged.current = true;
-    localStorage.setItem("volume", newVolume);
+    const newVolume = Math.max(volume - 1, 0);
+    handleVolumeChange(newVolume);
+    setVolumeComponent(newVolume)
   };
 
   const handleToggleVolume = () => {
     if (volume === 0) {
-      setVolume(lastVolume || 50); // Restaura o último volume ou 50 como padrão
-      localStorage.setItem("volume", lastVolume || 50);
+      handleVolumeChange(lastVolume || 50); // Restaura o último volume ou 50 como padrão
+      setVolumeComponent(lastVolume || 50);
     } else {
-      setLastVolume(volume); // Armazena o último volume antes de definir como 0
-      setVolume(0); // Define o volume como 0
-      localStorage.setItem("volume", 0);
+      handleVolumeChange(0); 
+      setVolumeComponent(0);
     }
-    volumeChanged.current = true;
   };
 
-  const handleStatusChange = (playing, statusMessage, volume, timer, fadeOut) => {
+  const handleStatusChange = (
+    playing,
+    statusMessage,
+    volume,
+    timer,
+    fadeOut
+  ) => {
     setPlaying(playing);
     if (!volumeChanged.current) {
       setVolume(volume);
@@ -128,15 +121,22 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
       setTimeInSeconds(timer.remainingSeconds);
     }
 
-    setFadeOutAjusted(fadeOut)
+    setFadeOutAjusted(fadeOut);
   };
 
   const handleFadeOut = (value) => {
     axios
       .post(`${apiUrl}/fadeOut?fadeOut=${value}`)
       .catch((error) => console.log(error))
-      .finally(() => setFadeOutAjusted(value))
+      .finally(() => setFadeOutAjusted(value));
+  };
 
+  // Função para alterar o volume
+  const handleVolumeChange = (newValue) => {
+    setLastVolume(volume);
+    setVolume(newValue);
+    volumeChanged.current = true;
+    localStorage.setItem("volume", newValue);
   };
 
   return (
@@ -160,7 +160,7 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
             <VolumeDown />
           </Button>
           <Button variant="contained" onClick={handleVolumeUp}>
-            <VolumeUp />
+            <VolumeUp /> 
           </Button>
           <Button variant="outlined" onClick={handleToggleVolume}>
             <VolumeOff color={volume === 0 ? "secondary" : "disabled"} />
