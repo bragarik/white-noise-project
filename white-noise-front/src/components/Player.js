@@ -13,6 +13,9 @@ import {
   PlayArrow,
   Stop,
   VolumeOff,
+  Piano,
+  NoiseAware,
+  Pause,
 } from "@mui/icons-material";
 import axios from "axios";
 
@@ -21,7 +24,7 @@ import "../assets/Player.css";
 import CustomGridItem from "./CustomGridItem";
 import Temporizador from "./Temporizador";
 
-const Player = ({ apiUrl, playing, setPlaying }) => {
+const Player = ({ apiUrl, playing, setPlaying, setMessageAlert }) => {
   const [volume, setVolume] = useState(null); // Estado do volume
   const [lastVolume, setLastVolume] = useState(null); // Estado para armazenar o último volume
   const volumeChanged = useRef(false);
@@ -30,6 +33,7 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
   const [timeInSeconds, setTimeInSeconds] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const [fadeOutAjusted, setFadeOutAjusted] = useState(false);
+  const [modeNoise, setModeNoise] = useState(true);
 
   useEffect(() => {
     setVolume(parseInt(localStorage.getItem("volume")));
@@ -39,7 +43,7 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
     if (volumeChanged.current) {
       axios
         .post(`${apiUrl}/volume?volume=${volume / 100}`)
-        .catch((error) => console.log(error))
+        .catch((error) => setMessageAlert("Ocorreu um erro ao ajustar o volume: " + error.message))
         .finally(() => (volumeChanged.current = false));
     }
   }, [apiUrl, volume]);
@@ -50,15 +54,10 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
       .post(`${apiUrl}/play`)
       .then(function (response) {
         const data = response.data;
-        handleStatusChange(
-          data.status,
-          data.statusMessage,
-          parseInt(data.volume * 100),
-          data.timer,
-          data.fadeOut
-        );
+        handleStatusChange(data);
+        setMessageAlert();
       })
-      .catch((error) => console.log(error));
+      .catch((error) =>  setMessageAlert("Ocorreu um erro ao executar o play: " + error.message));
   };
 
   // Função para parar a reprodução
@@ -67,15 +66,10 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
       .post(`${apiUrl}/stop`)
       .then(function (response) {
         const data = response.data;
-        handleStatusChange(
-          data.status,
-          data.statusMessage,
-          parseInt(data.volume * 100),
-          data.timer,
-          data.fadeOut
-        );
+        handleStatusChange(data);
+        setMessageAlert();
       })
-      .catch((error) => console.log(error));
+      .catch((error) =>  setMessageAlert("Ocorreu um erro ao executar o stop: " + error.message));
   };
 
   // Função para aumentar o volume
@@ -89,7 +83,7 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
   const handleVolumeDown = () => {
     const newVolume = Math.max(volume - 1, 0);
     handleVolumeChange(newVolume);
-    setVolumeComponent(newVolume)
+    setVolumeComponent(newVolume);
   };
 
   const handleToggleVolume = () => {
@@ -97,37 +91,33 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
       handleVolumeChange(lastVolume || 50); // Restaura o último volume ou 50 como padrão
       setVolumeComponent(lastVolume || 50);
     } else {
-      handleVolumeChange(0); 
+      handleVolumeChange(0);
       setVolumeComponent(0);
     }
   };
 
-  const handleStatusChange = (
-    playing,
-    statusMessage,
-    volume,
-    timer,
-    fadeOut
-  ) => {
-    setPlaying(playing);
+  const handleStatusChange = (data) => {
+    setPlaying(data.status);
     if (!volumeChanged.current) {
-      setVolume(volume);
-      setVolumeComponent(volume);
+      setVolume(data.volume * 100);
+      setVolumeComponent(data.volume * 100);
     }
-    setStatusMessage(statusMessage);
+    setStatusMessage(data.statusMessage);
 
-    setTimerRunning(timer.on);
-    if (timer.on) {
-      setTimeInSeconds(timer.remainingSeconds);
+    setTimerRunning(data.timer.on);
+    if (data.timer.on) {
+      setTimeInSeconds(data.timer.remainingSeconds);
     }
 
-    setFadeOutAjusted(fadeOut);
+    setFadeOutAjusted(data.fadeOut);
+    setModeNoise(data.modeNoise);
   };
 
   const handleFadeOut = (value) => {
     axios
       .post(`${apiUrl}/fadeOut?fadeOut=${value}`)
-      .catch((error) => console.log(error))
+      .then(() => setMessageAlert())
+      .catch((error) => setMessageAlert("Ocorreu um erro ao mudar o fadeOut: " + error.message))
       .finally(() => setFadeOutAjusted(value));
   };
 
@@ -139,28 +129,53 @@ const Player = ({ apiUrl, playing, setPlaying }) => {
     localStorage.setItem("volume", newValue);
   };
 
+  const handleModeNoise = (newValue) => {
+    setModeNoise(newValue);
+    axios
+      .post(`${apiUrl}/mode?noise=${newValue}`)
+      .then(() => setMessageAlert())
+      .catch((error) =>setMessageAlert("Ocorreu um erro ao mudar o noise mode: " + error.message));
+  };
+
   return (
     <>
-      <CustomGridItem xs={10} md={2}>
+      <CustomGridItem xs={9} md={2}>
         <Status
           apiUrl={apiUrl}
           onStatusChange={handleStatusChange}
+          onStatusError={setMessageAlert}
           playing={playing}
           statusMessage={statusMessage}
         />
       </CustomGridItem>
-      <CustomGridItem xs={2} md={2}>
+      <CustomGridItem xs={3} md={1}>
         <Button variant="contained" onClick={playing ? handleStop : handlePlay}>
-          {playing ? <Stop /> : <PlayArrow />}
+          {playing ? <Pause /> : <PlayArrow />}
         </Button>
       </CustomGridItem>
-      <CustomGridItem xs={12} md={3}>
+      <CustomGridItem xs={3} md={1}>
+        <Button
+          color={modeNoise ? "primary" : "secondary"}
+          onClick={() => handleModeNoise(!modeNoise)}
+          size="large"
+          endIcon={
+            modeNoise ? (
+              <NoiseAware fontSize="large" />
+            ) : (
+              <Piano fontSize="large" />
+            )
+          }
+        >
+          {modeNoise ? <>Noise</> : <>Relax</>}
+        </Button>
+      </CustomGridItem>
+      <CustomGridItem xs={9} md={3}>
         <ButtonGroup variant="contained" size="large">
           <Button variant="contained" onClick={handleVolumeDown}>
             <VolumeDown />
           </Button>
           <Button variant="contained" onClick={handleVolumeUp}>
-            <VolumeUp /> 
+            <VolumeUp />
           </Button>
           <Button variant="outlined" onClick={handleToggleVolume}>
             <VolumeOff color={volume === 0 ? "secondary" : "disabled"} />

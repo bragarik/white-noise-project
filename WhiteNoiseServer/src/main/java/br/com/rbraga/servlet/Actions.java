@@ -68,6 +68,11 @@ public class Actions extends HttpServlet {
 				AudioPlayerClip.setFadeOut(fadeOut.equals("true"));
 				if (isDevelopment)
 					System.out.println(fadeOut);
+			} else if ("mode".equalsIgnoreCase(acao)) {
+				String noise = request.getParameter("noise");
+				AudioPlayerClip.setMode(noise.equals("true"));
+				if (isDevelopment)
+					System.out.println(noise);
 			} else if ("status".equalsIgnoreCase(acao)) {
 				// Não precissa fazer nada
 			} else {
@@ -91,6 +96,7 @@ public class Actions extends HttpServlet {
 			json.put("timer", timerJson);
 			json.put("volume", AudioPlayerClip.getGain());
 			json.put("fadeOut", AudioPlayerClip.isFadeOut());
+			json.put("modeNoise", AudioPlayerClip.isNoiseMode());
 			response.getWriter().write(json.toString());
 
 		} else {

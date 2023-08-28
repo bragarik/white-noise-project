@@ -56,14 +56,12 @@ const Temporizador = ({
   };
 
   const handleSetTime = (time, renew) => {
-    if (!running) {
-      setTimeInSeconds(time);
-      setTimeAjusted(time);
-    } else {
-      setTimeInSeconds(time + (renew ? 0 : timeInSeconds));
-      setTimeAjusted(time + (renew ? 0 : timeInSeconds));
+    if (running) {
+      time = time + (renew ? 0 : timeInSeconds)
     }
-
+    
+    setTimeInSeconds(time);
+    setTimeAjusted(time);
     setRunning(true);
 
     axios

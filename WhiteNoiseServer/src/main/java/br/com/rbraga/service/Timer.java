@@ -24,9 +24,9 @@ public class Timer {
 					stop();
 					taskStop.run();
 				} else {
-					taskStoping.run();
 					remainingSeconds--;
 				}
+				taskStoping.run();
 			}
 		};
 		timer.scheduleAtFixedRate(timerTask, delay, period);
@@ -67,29 +67,4 @@ public class Timer {
 		return isRunning;
 	}
 
-//	public static void main(String[] args) {
-//		CustomTimer customTimer = new CustomTimer();
-//
-//		Runnable task = () -> System.out.println("Timer task executed!");
-//
-//		customTimer.start(60, task); // Iniciar o timer com 60 segundos
-//
-//		try {
-//			Thread.sleep(30000); // Esperar 30 segundos
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		customTimer.adjustTime(90); // Alterar o tempo para 90 segundos
-//
-//		try {
-//			Thread.sleep(60000); // Esperar mais 60 segundos
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//
-//		customTimer.stop(); // Parar o timer
-//
-//		System.out.println("Remaining seconds: " + customTimer.getRemainingSeconds());
-//	}
 }
